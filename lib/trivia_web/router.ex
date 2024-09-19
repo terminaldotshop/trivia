@@ -18,7 +18,9 @@ defmodule TriviaWeb.Router do
 
   scope "/", TriviaWeb do
     pipe_through :browser
+
     live "/", Home
+    get "/auth/callback", AuthController, :callback
 
     live_session :default, on_mount: TriviaWeb.Auth do
       live "/stream", Stream

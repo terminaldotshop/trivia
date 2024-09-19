@@ -20,14 +20,18 @@ defmodule TriviaWeb.Home do
   end
 
   def mount(_params, _session, socket) do
+    dbg(socket.host_uri)
+
     authorize =
       %URI{
         scheme: "https",
-        host: "auth.terminal.shop",
+        host: "auth.dev.terminal.shop",
         path: "/github/authorize",
         query:
           URI.encode_query(%{
-            redirect_uri: socket.host_uri,
+            redirect_uri:
+              socket.host_uri
+              |> Map.put(:path, "/auth/callback"),
             response_type: "code",
             client_id: "trivia"
           })

@@ -9,18 +9,11 @@ export default $config({
     };
   },
   async run() {
-    const vpc =
-      $app.stage === "dev"
-        ? new sst.aws.Vpc("Vpc")
-        : sst.aws.Vpc.get("Vpc", "lll");
+    const vpc = sst.aws.Vpc.get("Vpc", "vpc-070a1a7598f4c12d1");
     const cluster = new sst.aws.Cluster("Cluster", {
       vpc,
     });
     cluster.addService("Elixir", {
-      scaling: {
-        min: 2,
-        max: 2,
-      },
       environment: {
         SECRET_KEY_BASE: new random.RandomString("SecretKeyBase", {
           length: 64,
@@ -34,6 +27,9 @@ export default $config({
             forward: "4000/http",
           },
         ],
+      },
+      dev: {
+        command: "iex -S mix phx.server",
       },
     });
   },
