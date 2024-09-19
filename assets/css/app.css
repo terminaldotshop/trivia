@@ -1,0 +1,17 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@layer base {
+  @font-face {
+    font-family: 'geist';
+    src:
+      url('/fonts/GeistMonoVF.woff2') format('woff2-variations'),
+      url('/fonts/GeistMonoVF.woff') format('woff-variations');
+    font-display: swap;
+    font-style: normal;
+    font-weight: 100 900;
+  }
+}
+
+/* This file is for your main application CSS */
