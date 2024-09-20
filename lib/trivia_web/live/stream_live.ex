@@ -12,9 +12,9 @@ defmodule TriviaWeb.Stream do
     {:ok,
      assign(socket,
        user_id: session["user_id"],
-       chat_input: "",
+       form: to_form(%{}),
        messages: []
-     )}
+     ), temporary_assigns: [form: to_form(%{})]}
   end
 
   def render(assigns) do
@@ -22,34 +22,28 @@ defmodule TriviaWeb.Stream do
     <div class="absolute inset-0 flex items-center justify-center">
       <div>
         <div>
-          <%= for message <- Enum.reverse(@messages) do %>
-            <div><%= message.message %></div>
-          <% end %>
+          <div :for={message <- Enum.reverse(@messages)}><%= message.message %></div>
         </div>
-        <input
-          type="text"
-          value={@chat_input}
-          phx-keyup="chat_submit"
-          phx-key="Enter"
-          class="bg-transparent"
-        />
+        <.form for={@form} phx-submit="chat_submit" class="flex items-center">
+          <.input field={@form[:chat_input]} type="text" class="bg-transparent" />
+        </.form>
       </div>
     </div>
     """
   end
 
-  def handle_event("chat_submit", %{"value" => value}, socket) do
+  def handle_event("chat_submit", %{"chat_input" => message}, socket) do
     Phoenix.PubSub.broadcast(
       Trivia.PubSub,
       @topic,
       {:chat,
        %{
          user_id: socket.assigns.user_id,
-         message: value
+         message: message
        }}
     )
 
-    {:noreply, assign(socket, chat_input: "empty")}
+    {:noreply, assign(socket, :form, to_form(%{"chat_input" => ""}))}
   end
 
   def handle_event(_, _, socket) do
@@ -57,6 +51,6 @@ defmodule TriviaWeb.Stream do
   end
 
   def handle_info({:chat, evt}, socket) do
-    {:noreply, assign(socket, :messages, Enum.take([evt | socket.assigns.messages], 100))}
+    {:noreply, update(socket, :messages, &[evt | Enum.take(&1, 99)])}
   end
 end
